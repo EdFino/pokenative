@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 
 const endpoint = "https://pokeapi.co/api/v2"
@@ -7,15 +8,46 @@ type API = {
         count: number,
         next: string | null,
         results: {name: string, url: string}
-    }
-}
+    },
+    '/pokemon/[id]': {
+        id: number,
+        name: string,
+        url: string,
+        weight: number,
+        height: number,
+        moves: {move: {name: string}}[],
+        stats: {
+            base_stat: number,
+            stat: {
+                name: string
+            };
+        }[];
+        cries: {
+            latest: string;
+        };
+        types: {
+            type: {
+                name: keyof typeof Colors ["type"]
+            };
+        }[];
+    },
+    "/pokemon-species/[id]": {
+        flavor_text_entries: {
+            flavor_text: string;
+            language: {
+                name: string;
+            };
+        }[];
+    };
+};
 
-export function UseFetchQuery <T extends keyof API>(path: T) {
+export function UseFetchQuery <T extends keyof API>(path: T, params?: Record<string, string | number>) {
+    const localUrl = endpoint + Object.entries (params ?? {}).reduce<string>((acc, [key, value]) => acc.replaceAll(`[${key}]`, String(value)), path)
     return useQuery ({
-        queryKey: [path],
+        queryKey: [localUrl],
         queryFn: async () => {
             wait (1)
-            return fetch(endpoint + path).then (r => r.json() as Promise<API[T]>)
+            return fetch(localUrl).then (r => r.json() as Promise<API[T]>)
         }
 
     })

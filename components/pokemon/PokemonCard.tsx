@@ -3,6 +3,7 @@ import { ThemedText } from "../ThemedText"
 import { Card } from "../Card"
 import { useThemeColors } from "@/hooks/UseThemeColors"
 import { Link } from "expo-router"
+import { getPokemonArtwork } from "@/app/functions/pokemon"
 type Props = {
     style?: ViewStyle,
     id: number,
@@ -22,7 +23,7 @@ export function PokemonCard ({style, id, name}: Props) {
                 #{id.toString().padStart(3, '0')}
             </ThemedText>
             <Image
-                source={{uri: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}}
+                source={{uri: getPokemonArtwork(id)}}
                 height={72}
                 width={72}
             />
