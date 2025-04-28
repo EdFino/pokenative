@@ -9,8 +9,8 @@ export function Card ({style, ...rest}: Props) {
     const colors= useThemeColors();
 
     return (
-        <View style={[style, styles, {backgroundColor: colors.grayWhite} ]} {...rest} />    )
-
+        <View style={[{backgroundColor: colors.grayWhite}, styles, style ]}
+            {...rest} />    )
 }
 
 const styles = {

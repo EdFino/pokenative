@@ -46,7 +46,6 @@ export function UseFetchQuery <T extends keyof API>(path: T, params?: Record<str
     return useQuery ({
         queryKey: [localUrl],
         queryFn: async () => {
-            wait (1)
             return fetch(localUrl).then (r => r.json() as Promise<API[T]>)
         }
 
@@ -58,7 +57,6 @@ export function useInfiniteFetchQuery <T extends keyof API>(path: T) {
             queryKey: [path],
             initialPageParam: endpoint + path,
             queryFn: async ({pageParam}) => {
-                await wait (1)
                 return fetch (pageParam, {
                     headers: {
                         Accept: 'application/json'

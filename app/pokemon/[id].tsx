@@ -21,9 +21,14 @@ export default function pokemon () {
     const { data: pokemon } = UseFetchQuery("/pokemon/[id]", {id: params.id})
     const { data: species } = UseFetchQuery("/pokemon-species/[id]", {id: params.id})
     const mainType = pokemon?.types?.[0].type.name
+    const id = parseInt(params.id, 10)
     const colorType = mainType ? Colors.type[mainType] : colors.grayLight
     const types = pokemon?.types ?? []
     const bio = species?.flavor_text_entries?.find(({language}) => language.name === 'en')?.flavor_text.replaceAll(/\r?\n/g, " ");
+
+    const isFirst = id === 1;
+    const isLast = id === 800;
+
     const onImagePress = async () => {
         const cry = pokemon?.cries.latest
         if (!cry) {
@@ -35,7 +40,15 @@ export default function pokemon () {
             sound.playAsync()
         }
     }
-    const stats = pokemon?.stats ?? basePokemonStats
+    const stats = pokemon?.stats ?? basePokemonStats;
+
+    const onPrevious = () => {
+        router.replace({pathname: '/pokemon/[id]', params: {id: Math.max(id -1, 1)}})
+    }
+
+    const onNext = () => {
+        router.replace({pathname: '/pokemon/[id]', params: {id: Math.min(id + 1, 800)}})
+    }
 
     return (
 
@@ -55,25 +68,33 @@ export default function pokemon () {
                     #{params.id.padStart(3, '0')}
                 </ThemedText>
             </Row>
-            <View style={styles.body}>
-                <Row style={styles.imageRow}>
-                    <Pressable>
-                        <Image
-                            source={require("@/assets/images/white_left_chevron.png")}
-                            width={24}
-                            height={24}
-                        />
-                    </Pressable>
-                    <Pressable onPress={onImagePress}>
-                        <Image style={styles.artwork}
-                            source={{uri: getPokemonArtwork(params.id)}}
-                            height={200}
-                            width={200}
-                        />
-                    </Pressable>
-                </Row>
-            </View>
+
             <Card style={styles.card}>
+                <Row style={styles.imageRow}>
+                        {isFirst ? <View style={{height: 24, width: 24}}/> :
+                        <Pressable onPress={onPrevious}>
+                            <Image
+                                source={require("@/assets/images/white_chevron_left.png")}
+                                width={24}
+                                height={24}
+                            />
+                        </Pressable> }
+                        <Pressable onPress={onImagePress}>
+                            <Image style={styles.artwork}
+                                source={{uri: getPokemonArtwork(params.id)}}
+                                height={200}
+                                width={200}
+                            />
+                        </Pressable>
+                        {isLast ? <View style={{height: 24, width: 24}}/> :
+                        <Pressable onPress={onNext}>
+                            <Image
+                                source={require("@/assets/images/white_chevron_right.png")}
+                                width={24}
+                                height={24}
+                            />
+                        </Pressable>}
+                    </Row>
                 <Row gap={16} style= {{height: 20}}>
                     {types.map(type => <PokemonType key={type.type.name} name={type.type.name}/>)}
                 </Row>
@@ -132,20 +153,23 @@ const styles = StyleSheet.create ({
         alignSelf: "center",
         zIndex: 2
     },
-    body: {
-        marginTop: 144
+    imageRow: {
+        position: 'absolute',
+        top: -140,
+        zIndex: 2,
+        justifyContent: 'space-between',
+        right: 0,
+        left: 0,
+        paddingHorizontal: 20
     },
     card: {
+        marginTop: 144,
         paddingHorizontal: 20,
         paddingTop: 60,
         gap: 16,
         alignItems: 'center',
-        paddingBottom: 20
-    },
-    imageRow: {
-        position: 'absolute',
-        top: -140,
-        zIndex: 2
+        paddingBottom: 20,
+        overflow: 'visible'
     }
 
 })
