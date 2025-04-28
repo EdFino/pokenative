@@ -12,6 +12,7 @@ import { PokemonType } from "@/components/PokemonType";
 import { PokemonSpecs } from "@/components/PokemonSpecs";
 import { PokemonStat } from "@/components/PokemonStat";
 import { basePokemonStats } from "../functions/pokemon";
+import { Audio } from "expo-av";
 
 export default function pokemon () {
 
@@ -23,7 +24,17 @@ export default function pokemon () {
     const colorType = mainType ? Colors.type[mainType] : colors.grayLight
     const types = pokemon?.types ?? []
     const bio = species?.flavor_text_entries?.find(({language}) => language.name === 'en')?.flavor_text.replaceAll(/\r?\n/g, " ");
-
+    const onImagePress = async () => {
+        const cry = pokemon?.cries.latest
+        if (!cry) {
+            return;
+        } else {
+            const {sound} = await Audio.Sound.createAsync({
+                uri: cry
+            }, {shouldPlay: true})
+            sound.playAsync()
+        }
+    }
     const stats = pokemon?.stats ?? basePokemonStats
 
     return (
@@ -40,14 +51,27 @@ export default function pokemon () {
                         <ThemedText color="grayWhite" variant="headline" style={{ textTransform: 'capitalize'}}>{pokemon?.name}</ThemedText>
                     </Row>
                 </Pressable>
-                <ThemedText color="grayWhite" variant="subtitle 2">#{params.id.padStart(3, '0')}</ThemedText>
+                <ThemedText color="grayWhite" variant="subtitle 2">
+                    #{params.id.padStart(3, '0')}
+                </ThemedText>
             </Row>
             <View style={styles.body}>
-                <Image style={styles.artwork}
-                    source={{uri: getPokemonArtwork(params.id)}}
-                    height={200}
-                    width={200}
-                />
+                <Row style={styles.imageRow}>
+                    <Pressable>
+                        <Image
+                            source={require("@/assets/images/white_left_chevron.png")}
+                            width={24}
+                            height={24}
+                        />
+                    </Pressable>
+                    <Pressable onPress={onImagePress}>
+                        <Image style={styles.artwork}
+                            source={{uri: getPokemonArtwork(params.id)}}
+                            height={200}
+                            width={200}
+                        />
+                    </Pressable>
+                </Row>
             </View>
             <Card style={styles.card}>
                 <Row gap={16} style= {{height: 20}}>
@@ -106,8 +130,6 @@ const styles = StyleSheet.create ({
     },
     artwork: {
         alignSelf: "center",
-        position: 'absolute',
-        top: -140,
         zIndex: 2
     },
     body: {
@@ -119,6 +141,11 @@ const styles = StyleSheet.create ({
         gap: 16,
         alignItems: 'center',
         paddingBottom: 20
+    },
+    imageRow: {
+        position: 'absolute',
+        top: -140,
+        zIndex: 2
     }
 
 })
