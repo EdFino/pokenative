@@ -10,6 +10,8 @@ import { formatSize, formatWeight, getPokemonArtwork } from "../functions/pokemo
 import { Card } from "@/components/Card";
 import { PokemonType } from "@/components/PokemonType";
 import { PokemonSpecs } from "@/components/PokemonSpecs";
+import { PokemonStat } from "@/components/PokemonStat";
+import { basePokemonStats } from "../functions/pokemon";
 
 export default function pokemon () {
 
@@ -21,9 +23,12 @@ export default function pokemon () {
     const colorType = mainType ? Colors.type[mainType] : colors.grayLight
     const types = pokemon?.types ?? []
     const bio = species?.flavor_text_entries?.find(({language}) => language.name === 'en')?.flavor_text.replaceAll(/\r?\n/g, " ");
+
+    const stats = pokemon?.stats ?? basePokemonStats
+
     return (
 
-    <RootView style={{ backgroundColor: colorType}}>
+    <RootView backgroundColor={colorType}>
         <View>
             <Image
                 source={require("@/assets/images/pokeball-translucid.png")}
@@ -35,7 +40,6 @@ export default function pokemon () {
                         <ThemedText color="grayWhite" variant="headline" style={{ textTransform: 'capitalize'}}>{pokemon?.name}</ThemedText>
                     </Row>
                 </Pressable>
-
                 <ThemedText color="grayWhite" variant="subtitle 2">#{params.id.padStart(3, '0')}</ThemedText>
             </Row>
             <View style={styles.body}>
@@ -46,8 +50,8 @@ export default function pokemon () {
                 />
             </View>
             <Card style={styles.card}>
-                <Row gap={16}>
-                    {types.map(type => <PokemonType name={type.type.name}/>)}
+                <Row gap={16} style= {{height: 20}}>
+                    {types.map(type => <PokemonType key={type.type.name} name={type.type.name}/>)}
                 </Row>
                 <ThemedText variant="subtitle 1" style={{color: colorType}}>
                     About
@@ -62,7 +66,7 @@ export default function pokemon () {
                     <PokemonSpecs 
                         style={{borderStyle: 'solid', borderRightWidth: 1, borderColor: colors.grayLight}}
                         title={formatSize(pokemon?.height)}
-                        description="size"
+                        description="Size"
                         image={require("@/assets/images/straighten.png")}>
                     </PokemonSpecs>
                     <PokemonSpecs 
@@ -77,8 +81,11 @@ export default function pokemon () {
                 <ThemedText variant="subtitle 1" style={{color: colorType}}>
                     Base stats
                 </ThemedText>
+                <View style={{alignSelf: 'stretch'}}>
+                    {pokemon?.stats.map(stat => <PokemonStat key={stat.stat.name} name={stat.stat.name} value={stat.base_stat} color={colorType}/>
+)}
+                </View>
             </Card>
-            <Text>Pokemon {params.id}</Text>
         </View>
     </RootView>
 
@@ -110,7 +117,8 @@ const styles = StyleSheet.create ({
         paddingHorizontal: 20,
         paddingTop: 60,
         gap: 16,
-        alignItems: 'center'
+        alignItems: 'center',
+        paddingBottom: 20
     }
 
 })
